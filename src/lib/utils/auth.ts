@@ -1,5 +1,8 @@
+import { localStorageStore } from '@skeletonlabs/skeleton';
 import { redirect } from '@sveltejs/kit';
 import { Auth } from 'aws-amplify';
+import { user as userStore } from '$lib/stores/auth';
+import type { User } from '$lib/types/auth';
 
 /**
  * REGISTRATION
@@ -28,14 +31,11 @@ export async function signUp({ username, password, email }: SignUpParameters) {
 				enabled: true
 			}
 		});
-		console.log('user', user);
-		console.log('userConfirmed', userConfirmed);
-		console.log('userSub', userSub);
+		return user;
 	} catch (error) {
 		console.log('error signing up user:', error);
 	}
 }
-
 type ConfirmSignUpParameters = {
 	username: string;
 	code: string;
@@ -43,11 +43,18 @@ type ConfirmSignUpParameters = {
 
 export async function confirmSignUp({ username, code }: ConfirmSignUpParameters) {
 	try {
-		await Auth.confirmSignUp(username, code, { forceAliasCreation: false });
-		console.log('user confirmed');
-		throw redirect(301, '/login');
+		return await Auth.confirmSignUp(username, code, { forceAliasCreation: false });
 	} catch (error) {
 		console.log('error confirming sign up', error);
+	}
+}
+
+
+export async function resendSignUp({ username }:{username:string}) {
+	try {
+		return await Auth.resendSignUp(username);
+	} catch (error) {
+		console.log('error', error);
 	}
 }
 
@@ -62,14 +69,11 @@ type SignInParameters = {
 
 export async function signIn({ username, password }: SignInParameters) {
 	try {
-		
-		const user = await Auth.signIn(username, password);
-		
+		return await Auth.signIn(username, password);
 	} catch (error) {
 		console.log('error signing in', error);
 	}
 }
-
 
 /**
  * SIGN out
@@ -82,51 +86,17 @@ export async function signOut() {
 		console.log('Error signing out: ', error);
 	}
 }
-export async function handleLogout() {
-    // Call your logout API endpoint here
-    // For example, using fetch:
-    try {
-      const response = await fetch("/logout", {
-        method: "POST", // or any other appropriate method
-      });
-
-      if (response.ok) {
-        // Redirect to the desired page after successful logout
-        redirect(303,"/");
-      } else {
-        // Handle error or show a message
-        console.error("Logout failed");
-      }
-    } catch (error) {
-      console.error("An error occurred during logout", error);
-    }
-  }
 
 
-
-
-/**
- * PWD RESET
- */
-async function changePassword(oldPassword: string, newPassword: string) {
-	try {
-		const user = await Auth.currentAuthenticatedUser();
-		const data = await Auth.changePassword(user, oldPassword, newPassword);
-		console.log(data);
-	} catch (err) {
-		console.log(err);
-	}
-}
 
 /**
  * FORGOTTEN PWD CONFIRM CODE
  */
 
 // Send confirmation code to user's email
-async function forgotPassword(username: string) {
+export async function forgotPassword(username: string) {
 	try {
-		const data = await Auth.forgotPassword(username);
-		console.log(data);
+		return await Auth.forgotPassword(username);
 	} catch (err) {
 		console.log(err);
 	}
@@ -136,47 +106,104 @@ async function forgotPassword(username: string) {
  * FORGOTTEN PWD CONFIRM CODE SUBMIT
  */
 // Collect confirmation code and new password
-async function forgotPasswordSubmit(username: string, code: string, newPassword: string) {
+export async function forgotPasswordSubmit(username: string, code: string, newPassword: string) {
 	try {
-		const data = await Auth.forgotPasswordSubmit(username, code, newPassword);
-		console.log(data);
+		return await Auth.forgotPasswordSubmit(username, code, newPassword);
 	} catch (err) {
 		console.log(err);
 	}
 }
 
-async function completeNewPassword(username: string, password: string) {
-	try {
-		const user = await Auth.signIn(username, password);
+// async function completeNewPassword(username: string, password: string) {
+// 	try {
+// 		const user = await Auth.signIn(username, password);
 
-		if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
-			const { requiredAttributes } = user.challengeParam; // the array of required attributes, e.g ['email', 'phone_number']
+// 		if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
+// 			const { requiredAttributes } = user.challengeParam; // the array of required attributes, e.g ['email', 'phone_number']
+// 		}
+// 		const newPassword = 'newPassword';
+// 		const loggedInUser = await Auth.completeNewPassword(
+// 			user, // the Cognito User Object
+// 			newPassword, // the new password
+// 			// OPTIONAL, the required attributes
+// 			{
+// 				email: 'xxxx@example.com',
+// 				phone_number: '1234567890'
+// 			}
+// 		);
+
+// 		console.log(loggedInUser);
+// 	} catch (err) {
+// 		console.log(err);
+// 	}
+// }
+export async function currentAuthenticatedUser() {
+	try {
+	  return await Auth.currentAuthenticatedUser({
+		bypassCache: false // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+	  });
+	} catch(err) {
+	  console.log(err);
+	}
+  };
+
+export async function getCurrentSession() {
+	try {
+	  return await Auth.currentSession();
+	} catch(err) {
+	  console.log('Error getting current session: ', err);
+	}
+  };
+
+export async function updateUserAttributes (user:User, attributes:{[x:string]:any}) {
+	try {
+		if(Object.keys(attributes).indexOf('email')){
+			console.log('a verification code is sent');
 		}
-		const newPassword = 'newPassword';
-		const loggedInUser = await Auth.completeNewPassword(
-			user, // the Cognito User Object
-			newPassword, // the new password
-			// OPTIONAL, the required attributes
-			{
-				email: 'xxxx@example.com',
-				phone_number: '1234567890'
-			}
-		);
+		return await Auth.updateUserAttributes(user, attributes);
 
-		console.log(loggedInUser);
+	} catch(err) {
+		console.log(err);
+	}
+};
+
+/**
+ * PWD CHANGE
+ */
+export async function changePassword(user: User, oldPassword: string, newPassword: string) {
+	try {
+		return await Auth.changePassword(user, oldPassword, newPassword);
 	} catch (err) {
 		console.log(err);
 	}
 }
 
 
-export async function getCurrentUser() {
-    try {
-        const user = await Auth.currentAuthenticatedUser({
-            bypassCache: false
-        });
-        return user;
-    } catch (error) {
-        console.error(error);
-    }
-};
+export async function updateUserEmail(user:User) {
+	try {
+	  await Auth.updateUserAttributes(user, {
+		email: 'updatedEmail@mydomain.com'
+	  });
+  
+	  console.log('a verification code is sent');
+	} catch(err) {
+	  console.log('failed with error', err);
+	}
+  }
+export async function verifyEmailValidationCode(code: string) {
+	try {
+	  return await Auth.verifyCurrentUserAttributeSubmit('email', code);
+	} catch(err) {
+	  console.log('failed with error', err);
+	}
+  }
+
+
+
+  export async function deleteUser() {
+	try {
+	  return await Auth.deleteUser();
+	} catch (error) {
+	  console.log('Error deleting user', error);
+	}
+  }

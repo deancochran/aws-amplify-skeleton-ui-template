@@ -3,21 +3,18 @@
 	import PageTransition from '$lib/components/ComponentTransition.svelte';
 	export let data;
 	import { page } from "$app/stores";
-	import { handleLogout } from '$lib/utils/auth';
 </script>
 
 
 <nav>
 	{#if !$page.data.user}
+	<a href="/">Home</a>
+	<a href="/login">Login</a>
+	<a href="/register">Register</a>
+	{:else}
 		<a href="/">Home</a>
-		<a href="/login">Login</a>
-		<a href="/confirm">confirm</a>
-		<a href="/register">Register</a>
-	{/if}
-
-	{#if $page.data.user}
-		<a href="/blog">blog</a>
-		<button type="button" on:click={handleLogout}>Logout</button>
+		<a href="/settings">settings</a>
+		<a data-sveltekit-preload-data="false" href="/logout">logout</a>
 	{/if}
 </nav>
 
