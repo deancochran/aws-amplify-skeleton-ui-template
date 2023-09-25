@@ -1,24 +1,32 @@
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { changePassword } from "$lib/utils/auth";
+import { changePassword, currentAuthenticatedUser, getCurrentSession, updateUserEmail, verifyEmailValidationCode } from "$lib/utils/auth";
 
-export const load: PageServerLoad = async ({ locals, parent }) => {
+export const load: PageServerLoad = async ({ parent }) => {
     const data = await parent();
     return data
-    
   }
     
 
 export const actions = {
-  reset: async ({ request,locals }) => {		
+  resetPwd: async ({ request }) => {		
     const formData = await request.formData();
     const oldPassword = String(formData.get('oldPassword'));
     const newPassword = String(formData.get('newPassword'));
     
-        try{
-            await changePassword(locals.user, oldPassword, newPassword)
-        }catch(err){
-            console.log("error while signing up",err)
-        }
+      await changePassword(await currentAuthenticatedUser(), oldPassword, newPassword)
+  },
+  resetEmail: async ({ request, locals }) => {		
+    const formData = await request.formData();
+    const newEmail = String(formData.get('newEmail'));
+
+    await updateUserEmail(locals.user, newEmail)
+    
+  },
+  confirmNewEmail: async ({ request }) => {		
+    const formData = await request.formData();
+    const code = String(formData.get('code'));
+    await verifyEmailValidationCode(code)
+    
   }
 } satisfies Actions;

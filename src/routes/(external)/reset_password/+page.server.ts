@@ -1,12 +1,12 @@
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
 import { forgotPasswordSubmit } from '$lib/utils/auth';
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ parent, locals }) => {
 	const data = await parent();
-	if (data.user) {
+	if (locals.user) {
 		throw redirect(303, '/settings');
 	}
 };
@@ -21,7 +21,10 @@ export const actions = {
         try{
             await forgotPasswordSubmit(username,code,newPassword)
         }catch(err){
-            console.log("error while signing up",err)
+            return fail(500, {
+				description: 'Error in forgotPasswordSubmit',
+				error: err
+			});
         }
 	}
 } satisfies Actions;

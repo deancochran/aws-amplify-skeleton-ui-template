@@ -1,14 +1,10 @@
 // See https://kit.svelte.dev/docs/types#app
-
-import type { Locale } from "$lib/stores/locale";
-import type { CognitoSignInUserSession, CognitoUser } from "$lib/types/auth";
-
 // for information about these interfaces
 declare global {
 	namespace App {
 		interface Locals {
 			session: any,
-			user:CognitoUser
+			user:any
 		  }
 		// interface Error {}
 		// interface Locals {}

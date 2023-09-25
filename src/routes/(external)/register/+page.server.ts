@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { signUp } from '$lib/utils/auth';
 
@@ -11,18 +11,23 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 
 export const actions = {
-	default: async ({ request }:{request:Request}) => {
+	register: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const username = String(formData.get('username'));
 		const email = String(formData.get('email'));
 		const password = String(formData.get('password'));
 		const val_password = String(formData.get('val-password'));
-		let user = undefined;
 		if (password != val_password) {
-			console.log('display error display passwords must match')
+			throw error(400, `Passwords do not match`);
 		} else {
-			user = await signUp({ username, password, email });
-			if(user){throw redirect(303, '/confirm')}
+			try{
+				const user = await signUp({ username, password, email });
+				return {success:true}
+			}catch(err){
+				throw error(400, `${err}`);
+			}
+			
+			
 		}
 	}
 };

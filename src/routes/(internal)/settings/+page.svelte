@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-    import type { PageData } from "./$types";
-    
+	function confirmEmailModal(event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement; }) {
+		throw new Error("Function not implemented.");
+	}
 </script>
-<p>Settings Page</p>
+<br/>
+<h1>Settings Page</h1>
+<br/>
 
-<h1>Chang Password Here</h1>
-<form method="POST" action="?/reset">
+<h1>Change Password Here</h1>
+<form method="POST" action="?/resetPwd">
 	<label>
 		old pasword
 		<input type="text" name="oldPassword" />
@@ -18,3 +20,11 @@
 	<button type="submit">send</button>
 </form>
 
+<h1>Change Email Here</h1>
+<form method="POST" action="?/resetEmail" on:submit={confirmEmailModal}>
+    <label>
+		new email
+		<input type="email" name="newEmail" />
+	</label>
+	<button type="submit">send</button>
+</form>

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { PageData } from "./$types";
-
-    export let data:PageData
+	import { page } from "$app/stores";
+    
 </script>
-{#if data.user}
-    <p>Welcome {data.user.username}</p>
+{#if $page.data.user}
+    <p>Welcome {$page.data.user.username}</p>
 {:else}
     <p>Welcome Alien</p>
 {/if}

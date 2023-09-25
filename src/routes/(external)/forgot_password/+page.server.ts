@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
@@ -18,8 +18,12 @@ export const actions = {
 		
         try{
             await forgotPassword(username)
+			return { success: true };
         }catch(err){
-            console.log("error while signing up",err)
+            return fail(500, {
+				description: 'Error in forgotPassword',
+				error: err
+			});
         }
 	}
 } satisfies Actions;
