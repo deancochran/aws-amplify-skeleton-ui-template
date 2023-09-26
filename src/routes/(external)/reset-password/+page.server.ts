@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
@@ -18,13 +18,11 @@ export const actions = {
 		const code = String(formData.get('code'));
 		const newPassword = String(formData.get('newPassword'));
 		
-        try{
-            await forgotPasswordSubmit(username,code,newPassword)
-        }catch(err){
-            return fail(500, {
-				description: 'Error in forgotPasswordSubmit',
-				error: err
-			});
-        }
+		try {
+			await forgotPasswordSubmit(username,code,newPassword)
+		} catch (err) {
+			throw error(409, `${err}`)
+		}
+		throw redirect(303, '/login');
 	}
 } satisfies Actions;

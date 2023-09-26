@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 
 export const actions = {
-	register: async ({ request, locals }) => {
+	register: async ({ request }) => {
 		const formData = await request.formData();
 		const username = String(formData.get('username'));
 		const email = String(formData.get('email'));
@@ -21,11 +21,11 @@ export const actions = {
 			throw error(400, `Passwords do not match`);
 		} else {
 			try{
-				const user = await signUp({ username, password, email });
-				return {success:true}
+				await signUp({ username, password, email });
 			}catch(err){
 				throw error(400, `${err}`);
 			}
+			throw redirect(303, '/confirm');
 			
 			
 		}

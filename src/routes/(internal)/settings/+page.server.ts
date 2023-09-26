@@ -1,6 +1,6 @@
-import type { Actions } from "@sveltejs/kit";
+import type {  Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { changePassword, currentAuthenticatedUser, getCurrentSession, updateUserEmail, verifyEmailValidationCode } from "$lib/utils/auth";
+import { changePassword, currentAuthenticatedUser, updateUserEmail, verifyEmailValidationCode } from "$lib/utils/auth";
 
 export const load: PageServerLoad = async ({ parent }) => {
     const data = await parent();

@@ -1,5 +1,5 @@
 import { confirmSignUp, resendSignUp } from "$lib/utils/auth";
-import { fail, redirect } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
@@ -17,14 +17,10 @@ export const actions = {
 		
         try{
             await confirmSignUp({ username, code })
-            return { success: true };
         }catch(err){
-            return fail(500, {
-				description: 'Error in confirmSignUp',
-				error: err
-			});
+            throw error(400, `${err}`);
         }
-		
+        throw redirect(303, '/settings');
 		
 	},
     resend: async ({ request }) => {
@@ -32,13 +28,10 @@ export const actions = {
 		const username = String(formData.get('username'));
         try{
             await resendSignUp({username})
-            return { success: true };
         }catch(err){
-            return fail(500, {
-				description: 'Error in resendSignUp',
-				error: err
-			});
+            throw error(400, `${err}`);
         }
+        return { success: true };
 	}
 
     

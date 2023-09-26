@@ -5,13 +5,13 @@
 	
 	const toastStore = getToastStore();
 
-	const login: SubmitFunction = ({ action, formData, form, formElement, controller, submitter }) => {
+	const forgot: SubmitFunction = ({ action, formData, form, formElement, controller, submitter }) => {
 		return async ({ result }) => {
 			// if (result.type === 'success') { /* ... */ }
 			// if (result.type === 'failure') { /* ... */ }
 			if (result.type === 'redirect') { 
 				const t: ToastSettings = {
-					message: 'Welcome!',
+					message: 'Information was sent to your email to reset your password',
 					timeout: 10000
 				};
 				toastStore.trigger(t);
@@ -27,28 +27,12 @@
 			}
 		}
 	}
-	
 </script>
-
-<div>
-	<h1>Sign In</h1>
-	<form method="POST" action="?/login" use:enhance={login}>
-		<label>
-			Username
-			<input type="text" name="username" />
-			<!-- </label>
-      <label>
-        Email
-        <input name="email" type="email">
-    </label> -->
-			<label>
-				Password
-				<input name="password" type="password" />
-			</label>
-			<button type="submit">Login</button>
-		</label>
-	</form>
-	<a href="/confirm">Confirm Your Account </a>
-	<br/>
-	<a href="/forgot-password">Forgot your password? </a>
-</div>
+<h1>forgot your password? Resend code here</h1>
+<form method="POST" action="?/forgot" use:enhance={forgot}>
+	<label>
+		Username
+		<input type="text" name="username" />
+	</label>
+	<button type="submit">send</button>
+</form>

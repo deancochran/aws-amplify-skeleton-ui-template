@@ -2,29 +2,21 @@
   import { applyAction, enhance } from "$app/forms";
 	import type { SubmitFunction } from "@sveltejs/kit";
 	import { getToastStore, type ToastSettings } from "@skeletonlabs/skeleton";
-	import { goto } from "$app/navigation";
 	const toastStore = getToastStore();
 	const register: SubmitFunction = ({ action, formData, formElement, controller, submitter }) => {
-		// do something before the form submits
-
 		return async ({ result }) => {
-			// do something after the form submits
-			if (result.type === 'success') {
-				// do something...
+			// if (result.type === 'success') { /* ... */ }
+			// if (result.type === 'failure') { /* ... */ }
+			if (result.type === 'redirect') { 
 				const t: ToastSettings = {
 					message: `Successfully Sent Confirmation Code to ${formData.get('email')}`,
 					timeout: 10000
 				};
 				toastStore.trigger(t);
-				// use the default behavior for this result type
 				await applyAction(result)
 			}
-
-			if (result.type === 'failure') { /* ... */ }
-
-			if (result.type === 'redirect') { /* ... */ }
-
 			if (result.type === 'error') { 
+				console.log(result)
 				const t: ToastSettings = {
 				message: `${result.error.message}`,
 				timeout: 10000,

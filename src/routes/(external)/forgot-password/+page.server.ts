@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
@@ -15,15 +15,11 @@ export const actions = {
 	forgot: async ({ request }) => {		
         const formData = await request.formData();
 		const username = String(formData.get('username'));
-		
-        try{
+		try{
             await forgotPassword(username)
-			return { success: true };
         }catch(err){
-            return fail(500, {
-				description: 'Error in forgotPassword',
-				error: err
-			});
+            throw error(400, `${err}`);
         }
+        throw redirect(303, '/reset-password')
 	}
 } satisfies Actions;

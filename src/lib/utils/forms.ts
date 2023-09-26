@@ -1,4 +1,4 @@
-export function enhance(form: HTMLFormElement) {
+export function enhance(form: HTMLFormElement, submit: any) {
     async function handleSubmit(event: SubmitEvent) {
       event.preventDefault()
   
@@ -19,5 +19,3 @@ export function enhance(form: HTMLFormElement) {
       },
     }
   }
-
-  

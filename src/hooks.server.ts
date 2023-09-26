@@ -9,7 +9,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			return await resolve(event)
 		}
 		event.locals.user = await currentAuthenticatedUser()
-		console.log(_session.getIdToken().payload.email, 'is signed in at', event.url.pathname)
+		console.log(event.locals.user.attributes.email, 'is signed in at', event.url.pathname)
 		return await resolve(event)
 	}catch(err){
 		return await resolve(event)
