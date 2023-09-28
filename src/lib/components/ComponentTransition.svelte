@@ -6,7 +6,7 @@
 </script>
 
 {#key key}
-	<div class="w-full h-screen" in:fade={{ duration: 300, delay: 400 }} out:fade={{ duration: 300 }} on:introstart={()=>dispatch('introstart')} on:outroend={()=>dispatch('outroend')}>
+	<div class="w-auto h-auto" in:fade={{ duration: 300, delay: 400 }} out:fade={{ duration: 300 }} on:introstart={()=>dispatch('introstart')} on:outroend={()=>dispatch('outroend')}>
 		<slot />
 	</div>
 {/key}

@@ -1,54 +1,91 @@
 <script lang="ts">
-	import type { SubmitFunction } from "@sveltejs/kit";
-	import { getToastStore, type ToastSettings } from "@skeletonlabs/skeleton";
-	import { applyAction, enhance } from "$app/forms";
-	
-	const toastStore = getToastStore();
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { applyAction, enhance } from '$app/forms';
+	import { page } from '$app/stores';
 
-	const login: SubmitFunction = ({ action, formData, form, formElement, controller, submitter }) => {
+	const toastStore = getToastStore();
+	let loading:boolean = false
+
+	const login: SubmitFunction = ({ action, formData, formElement, controller, submitter }) => {
+		loading = true
 		return async ({ result }) => {
 			// if (result.type === 'success') { /* ... */ }
 			// if (result.type === 'failure') { /* ... */ }
-			if (result.type === 'redirect') { 
+			if (result.type === 'redirect') {
 				const t: ToastSettings = {
 					message: 'Welcome!',
-					timeout: 10000
+					timeout: 10000,
+					classes:`bg-success-500`
 				};
 				toastStore.trigger(t);
-				await applyAction(result)
+				loading=false
+				await applyAction(result);
 			}
-			if (result.type === 'error') { 
+			if (result.type === 'error') {
 				const t: ToastSettings = {
-				message: `${result.error.message}`,
-				timeout: 10000,
-				classes:`bg-error-500`
+					message: `${result.error.message}`,
+					timeout: 10000,
+					classes: `bg-error-500`
 				};
 				toastStore.trigger(t);
+				loading=false
 			}
-		}
-	}
-	
+		};
+	};
 </script>
 
-<div>
-	<h1>Sign In</h1>
-	<form method="POST" action="?/login" use:enhance={login}>
-		<label>
-			Username
-			<input type="text" name="username" />
-			<!-- </label>
-      <label>
-        Email
-        <input name="email" type="email">
-    </label> -->
-			<label>
-				Password
-				<input name="password" type="password" />
-			</label>
-			<button type="submit">Login</button>
-		</label>
-	</form>
-	<a href="/confirm">Confirm Your Account </a>
-	<br/>
-	<a href="/forgot-password">Forgot your password? </a>
+<div class="flex flex-col items-center justify-center align-middle w-screen h-screen">
+	<div
+		class="card rounded-md drop-shadow-2xl shadow-2xl min-h-fit sm:w-fit md:w-2/3 max-w-screen h-fit"
+	>
+		<header class="card-header">
+			<h1 class="text-4xl text-center font-serif">Sign in to your account</h1>
+		</header>
+		<section class="relative flex flex-col p-10 w-full items-center justify-center align-middle">
+			<form class="h-full w-full md:w-2/4" method="POST" action="?/login" use:enhance={login}>
+				<!-- <label>
+					Email
+					<input name="email" type="email">
+				</label>   -->
+				<div class="grid grid-cols-1 gap-0">
+					<label class="label w-full">
+						<!-- <span>Username</span> -->
+						<input class="input pl-2 p-1" name="username" type="text" placeholder="Usename" />
+					</label>
+
+					<label class="label">
+						<!-- <span>Password</span> -->
+						<input class="input pl-2 p-1" name="password" type="password" placeholder="Password" />
+					</label>
+				</div>
+				<br />
+				<div class="flex flex-row gap-4 ">
+					<a
+					href="/forgot-password"
+					class="font-semibold text-primary-500 transition-colors duration-300 ease-in-out hover:text-primary-400"
+					>Forgot your password?
+					</a>
+					<a
+					class="font-semibold text-primary-500 transition-colors duration-300 ease-in-out hover:text-primary-400"
+					href="/confirm"
+					>Confirm Your Account?
+					</a>
+				</div>
+				<br />
+
+				<button 
+				disabled={loading}
+				type="submit"
+				class="btn w-full variant-ghost-primary transition-colors duration-300 ease-in-out" 
+				class:variant-filled-primary={!loading}
+				class:variant-ghost-primary={loading}
+				>Login</button>
+
+			</form>
+		</section>
+		<!-- <footer class="card-footer text-center">
+			
+		</footer> -->
+	</div>
 </div>

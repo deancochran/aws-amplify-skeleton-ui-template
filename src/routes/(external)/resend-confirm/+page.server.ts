@@ -6,24 +6,23 @@ import { invalidateAll } from "$app/navigation";
 export const load: PageServerLoad = async ({ locals, parent }) => {
     const data = await parent()
 	if (locals.user) {
-		throw redirect(302, '/');
+		throw redirect(302, '/confirm');
 	}
 };
 
 export const actions = {
-	confirm: async ({ request, locals }) => {
-		const formData = await request.formData();
+    resend: async ({ request }) => {
+        const formData = await request.formData();
 		const username = String(formData.get('username'));
-        const code = String(formData.get('code'));
-		
         try{
-            await confirmSignUp({ username, code })
+            await resendSignUp({username})
+            
         }catch(err){
             throw error(400, `${err}`);
         }
-        throw redirect(303, '/login');
-		
+        throw redirect(303, '/confirm');
+        
 	}
 
-    
+
 };

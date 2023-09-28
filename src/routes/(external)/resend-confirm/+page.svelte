@@ -2,23 +2,22 @@
 	import { applyAction, enhance } from "$app/forms";
 	import type { SubmitFunction } from "@sveltejs/kit";
 	import { getToastStore, type ToastSettings } from "@skeletonlabs/skeleton";
-
-	let loading = false
+	let loading=false
 	const toastStore = getToastStore();
 
-	const confirm: SubmitFunction = ({ action, formData, form, formElement, controller, submitter }) => {
-		loading = true
+	
+	const resend: SubmitFunction = ({ action, formData, form, formElement, controller, submitter }) => {
+		loading=true
 		return async ({ result }) => {
 			// if (result.type === 'success') { /* ... */ }
 			// if (result.type === 'failure') { /* ... */ }
 			if (result.type === 'redirect') { 
 				const t: ToastSettings = {
-					message: 'You have successfully confirmed your account',
-					timeout: 10000,
-					classes:`bg-success-500`
+					message: 'A code confirmation code was sent to email',
+					timeout: 10000
 				};
 				toastStore.trigger(t);
-				loading = false
+				loading=false
 				await applyAction(result)
 			}
 			if (result.type === 'error') { 
@@ -28,7 +27,7 @@
 				classes:`bg-error-500`
 				};
 				toastStore.trigger(t);
-				loading = false
+				loading=false
 			}
 		}
 	}
@@ -39,10 +38,10 @@
 		class="card rounded-md drop-shadow-2xl shadow-2xl min-h-fit sm:w-fit md:w-2/3 max-w-screen h-fit"
 	>
 		<header class="card-header">
-			<h1 class="text-4xl text-center font-serif">Confirm your new account</h1>
+			<h1 class="text-4xl text-center font-serif">Resend Account Confirmation Code</h1>
 		</header>
 		<section class="relative flex flex-col p-10 w-full items-center justify-center align-middle">
-			<form class="h-full w-full md:w-2/4" method="POST" action="?/confirm" use:enhance={confirm}>
+			<form class="h-full w-full md:w-2/4" method="POST" action="?/resend" use:enhance={resend}>
 				<!-- <label>
 					Email
 					<input name="email" type="email">
@@ -53,21 +52,6 @@
 						<input class="input pl-2 p-1" name="username" type="text" placeholder="Username" />
 					</label>
 
-
-					<label class="label">
-						<input class="input pl-2 p-1"  type="number" name="code" placeholder="Code" />
-					</label>
-
-
-				</div>
-				
-				<br />
-				<div class="flex flex-row gap-4 ">
-					<a
-					href="/forgot-password"
-					class="font-semibold text-primary-500 transition-colors duration-300 ease-in-out hover:text-primary-400"
-					>Didn't receive a code?
-					</a>
 				</div>
 				<br />
 				<button 
@@ -76,7 +60,7 @@
 				class="btn w-full variant-ghost-primary transition-colors duration-300 ease-in-out" 
 				class:variant-filled-primary={!loading}
 				class:variant-ghost-primary={loading}
-				>Confirm Account</button>
+				>Resend Code</button>
 			</form>
 			
 		</section>
